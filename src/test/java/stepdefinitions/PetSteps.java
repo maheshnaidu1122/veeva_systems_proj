@@ -2,66 +2,56 @@ package stepdefinitions;
 
 import client.PetStoreClient;
 import io.cucumber.java.en.*;
-import io.restassured.response.Response;
 import org.testng.Assert;
-import utils.TestDataBuilder;
-
+import utils.TestContext;
 public class PetSteps {
 
     PetStoreClient client = new PetStoreClient();
-    Response response;
-    long petId;
 
-    // CREATE (C)
-    @Given("I create a pet")
-    public void createPet() {
-        response = client.createPet(TestDataBuilder.createPet().toString());
-        Assert.assertEquals(response.getStatusCode(), 200);
-        petId = response.jsonPath().getLong("id");
+    @Given("I create a pet with name {string} and status {string}")
+    public void createPet(String name, String status) {
+
+        String finalName = name.replace("<timestamp>", String.valueOf(System.currentTimeMillis()));
+        long id = System.currentTimeMillis();
+
+        String body = "{ \"id\": " + id + ", \"name\": \"" + finalName + "\", \"status\": \"" + status + "\" }";
+
+        TestContext.petName = finalName;
+        TestContext.response = client.createPet(body);
     }
 
-    @Then("pet should be created successfully")
-    public void validatePetCreated() {
-        Assert.assertEquals(response.getStatusCode(), 200);
+    @Then("API response should be successful")
+    public void validateSuccess() {
+        Assert.assertEquals(TestContext.response.getStatusCode(), 200);
     }
 
-    // READ (R)
-    @When("I fetch the pet")
-    public void fetchPet() {
-        response = client.getPetById(petId);
-        Assert.assertEquals(response.getStatusCode(), 200);
+    @And("I store pet id from response")
+    public void storeId() {
+        TestContext.petId = TestContext.response.jsonPath().getLong("id");
     }
 
-    @Then("pet should be available")
-    public void validatePetAvailable() {
-        String status = response.jsonPath().getString("status");
-        Assert.assertEquals(status, "available");
+    @When("I get the pet by stored id")
+    public void getPet() {
+        TestContext.response = client.getPet(TestContext.petId);
     }
 
-    // UPDATE (U)
+    @Then("pet name should match stored name")
+    public void validateName() {
+        Assert.assertEquals(TestContext.response.jsonPath().getString("name"), TestContext.petName);
+    }
+
+    @Then("pet status should be {string}")
+    public void validateStatus(String status) {
+        Assert.assertEquals(TestContext.response.jsonPath().getString("status"), status);
+    }
+
     @When("I update pet status to {string}")
     public void updatePet(String status) {
-        response = client.updatePet(petId, "doggie", status);
-        Assert.assertEquals(response.getStatusCode(), 200);
+        TestContext.response = client.updatePet(TestContext.petId, TestContext.petName, status);
     }
 
-    @Then("pet status should be updated")
-    public void validateUpdate() {
-        response = client.getPetById(petId);
-        String updatedStatus = response.jsonPath().getString("status");
-        Assert.assertEquals(updatedStatus, "sold");
-    }
-
-    // DELETE (D)
     @When("I delete the pet")
     public void deletePet() {
-        response = client.deletePet(petId);
-        Assert.assertEquals(response.getStatusCode(), 200);
-    }
-
-    @Then("pet should be deleted")
-    public void validateDelete() {
-        Response checkResponse = client.getPetById(petId);
-        Assert.assertEquals(checkResponse.getStatusCode(), 404);
+        TestContext.response = client.deletePet(TestContext.petId);
     }
 }

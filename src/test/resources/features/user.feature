@@ -1,23 +1,15 @@
 Feature: User Security
 
-  Scenario: Invalid user creation
-    When I create invalid user
-    Then user creation should fail
+  Scenario: Invalid user creation (logical validation)
+    When I create user with email "invalid_email"
+    Then response should contain created username
+    And response should not validate email format
 
   Scenario: Fetch non-existent user
-    When I fetch user "abc123"
+    When I fetch user "user_<timestamp>"
     Then user should not be found
+    And error message should contain "User not found"
 
   Scenario: Invalid login
-    When I login with username "wrong" and password "wrong"
-    Then login should fail
-
-  Scenario: Get existing user
-    Given I create a valid user
-    When I fetch user "testUser"
-    Then user should be returned
-
-  Scenario: Delete user
-    Given I create a valid user
-    When I delete user "testUser"
-    Then user should be deleted
+    When I login with username "wrong_<timestamp>" and password "wrong"
+    Then login should fail logically

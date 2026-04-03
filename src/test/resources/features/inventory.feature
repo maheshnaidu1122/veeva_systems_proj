@@ -1,6 +1,13 @@
-Feature: Inventory
+Feature: Inventory Analysis
 
-  Scenario: Validate inventory count
-    When I get inventory
-    And I fetch pets by status "available"
-    Then counts should match
+  Scenario: Compare inventory and API list
+
+    Given I fetch inventory
+    Then API response should be successful
+    And I extract available count
+
+    When I fetch pets with status "available"
+    Then pet list response should be successful
+    And I count pets in list
+
+    Then both counts should match

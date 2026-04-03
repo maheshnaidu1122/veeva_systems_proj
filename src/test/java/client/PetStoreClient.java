@@ -1,89 +1,98 @@
 package client;
 
 import io.restassured.response.Response;
-import static io.restassured.RestAssured.*;
+
+import static io.restassured.RestAssured.given;
 
 public class PetStoreClient {
 
-    public PetStoreClient() {
-            baseURI = "https://petstore.swagger.io/v2";
-    }
-    public Response createPet(Object body) {
-        return given().header("Content-Type", "application/json")
-                .body(body).post("/pet");
-    }
-    public Response getInventory() {
-        return given().when().get("/store/inventory");
+    // Supports Maven override: mvn clean test -DbaseUrl=...
+    private final String BASE_URL = System.getProperty("baseUrl", "https://petstore.swagger.io/v2");
+
+    // =========================
+    // PET APIs
+    // =========================
+
+    public Response createPet(String body) {
+        return given()
+                .baseUri(BASE_URL)
+                .header("Content-Type", "application/json")
+                .body(body)
+                .when()
+                .post("/pet");
     }
 
-    public Response findPetsByStatus(String status) {
-        return given().queryParam("status", status)
-                .when().get("/pet/findByStatus");
-    }
-    public Response getPet(int id) {
-        return given().get("/pet/" + id);
+    public Response getPet(long id) {
+        return given()
+                .baseUri(BASE_URL)
+                .when()
+                .get("/pet/" + id);
     }
 
     public Response updatePet(long id, String name, String status) {
-        String body = "{\n" +
-                "  \"id\": " + id + ",\n" +
-                "  \"name\": \"" + name + "\",\n" +
-                "  \"status\": \"" + status + "\"\n" +
-                "}";
+
+        String body = "{ \"id\": " + id + ", \"name\": \"" + name + "\", \"status\": \"" + status + "\" }";
 
         return given()
+                .baseUri(BASE_URL)
                 .header("Content-Type", "application/json")
                 .body(body)
+                .when()
                 .put("/pet");
     }
 
-    public Response deletePet(int id) {
-        return given().delete("/pet/" + id);
+    public Response deletePet(long id) {
+        return given()
+                .baseUri(BASE_URL)
+                .when()
+                .delete("/pet/" + id);
     }
 
-
-    public Response findByStatus(String status) {
-        return given().queryParam("status", status)
+    public Response findPetsByStatus(String status) {
+        return given()
+                .baseUri(BASE_URL)
+                .queryParam("status", status)
+                .when()
                 .get("/pet/findByStatus");
     }
 
+    // =========================
+    // STORE APIs
+    // =========================
+
+    public Response getInventory() {
+        return given()
+                .baseUri(BASE_URL)
+                .when()
+                .get("/store/inventory");
+    }
+
+    // =========================
+    // USER APIs
+    // =========================
+
     public Response createUser(String body) {
         return given()
+                .baseUri(BASE_URL)
                 .header("Content-Type", "application/json")
                 .body(body)
+                .when()
                 .post("/user");
     }
 
-    public Response getUser(String username) {
-        return given().get("/user/" + username);
-    }
-
-    public Response login(String username, String password) {
+    public Response loginUser(String username, String password) {
         return given()
+                .baseUri(BASE_URL)
                 .queryParam("username", username)
                 .queryParam("password", password)
+                .when()
                 .get("/user/login");
     }
-    public Response getPetById(int id) {
-        return given()
-                .get("/pet/" + id);
-    }
-    public Response deleteUser(String username) {
-        return given()
-                .delete("/user/" + username);
-    }
-    public Response getPetById(long petId) {
-        return given().get("/pet/" + petId);
-    }
 
-    public Response updatePetStatus(long petId, String status) {
+    public Response getUser(String username) {
         return given()
-                .queryParam("petId", petId)
-                .queryParam("status", status)
-                .post("/pet/" + petId);
-    }
-
-    public Response deletePet(long petId) {
-        return given().delete("/pet/" + petId);
+                .baseUri(BASE_URL)
+                .when()
+                .get("/user/" + username);
     }
 }

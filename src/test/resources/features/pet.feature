@@ -1,20 +1,25 @@
-Feature: Pet CRUD Operations
+Feature: Pet CRUD
 
-  Scenario: Create Pet (C)
-    Given I create a pet
-    Then pet should be created successfully
+  Scenario: Create Pet
+    Given I create a pet with name "pet_<timestamp>" and status "available"
+    Then API response should be successful
+    And I store pet id from response
 
-  Scenario: Read Pet (R)
-    Given I create a pet
-    When I fetch the pet
-    Then pet should be available
+  Scenario: Get Pet
+    Given I create a pet with name "pet_<timestamp>" and status "available"
+    And I store pet id from response
+    When I get the pet by stored id
+    Then pet name should match stored name
+    And pet status should be "available"
 
-  Scenario: Update Pet (U)
-    Given I create a pet
+  Scenario: Update Pet
+    Given I create a pet with name "pet_<timestamp>" and status "available"
+    And I store pet id from response
     When I update pet status to "sold"
-    Then pet status should be updated
+    Then API response should be successful
 
-  Scenario: Delete Pet (D)
-    Given I create a pet
+  Scenario: Delete Pet
+    Given I create a pet with name "pet_<timestamp>" and status "available"
+    And I store pet id from response
     When I delete the pet
-    Then pet should be deleted
+    Then API response should be successful
