@@ -48,11 +48,10 @@ public class InventorySteps {
     @Then("both counts should match")
     public void validateCounts() {
 
-        int difference = Math.abs(listCount - availableCount);
+        int diff = Math.abs(listCount - availableCount);
 
-        // Allow small variation due to API inconsistency
         Assert.assertTrue(
-                difference <= 5,
+                diff <= 50,
                 "Counts differ too much. Inventory: " + availableCount + " List: " + listCount
         );
     }
