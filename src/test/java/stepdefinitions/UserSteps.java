@@ -8,7 +8,6 @@ import utils.TestContext;
 public class UserSteps {
 
     PetStoreClient client = new PetStoreClient();
-
     String generatedUsername;
 
     // =========================
@@ -18,28 +17,33 @@ public class UserSteps {
     @When("I create user with email {string}")
     public void createInvalidUser(String email) {
 
-        generatedUsername = "user" + System.currentTimeMillis();
+        generatedUsername = "user_" + System.currentTimeMillis();
 
         String body = "{ \"username\": \"" + generatedUsername + "\", \"email\": \"" + email + "\" }";
 
         TestContext.response = client.createUser(body);
     }
 
-    // ✅ FIXED: Do NOT expect username in response (API doesn't return it)
     @Then("response should contain created username")
     public void validateUserCreated() {
 
+        int status = TestContext.response.getStatusCode();
         String response = TestContext.response.asString();
 
-        // Just ensure response is not empty and API responded
+        // API always returns 200 → validate that
+        Assert.assertEquals(status, 200, "Expected status code 200");
+
+        // Basic response validation
         Assert.assertNotNull(response, "Response is null");
         Assert.assertFalse(response.isEmpty(), "Response is empty");
     }
 
-    // ✅ Keep this simple & stable
     @Then("response should not validate email format")
     public void validateEmailNotChecked() {
-        Assert.assertEquals(TestContext.response.getStatusCode(), 200);
+
+        // Swagger does NOT validate email → always 200
+        Assert.assertEquals(TestContext.response.getStatusCode(), 200,
+                "API unexpectedly validated email");
     }
 
     // =========================
@@ -56,12 +60,22 @@ public class UserSteps {
 
     @Then("user should not be found")
     public void userNotFound() {
-        Assert.assertEquals(TestContext.response.getStatusCode(), 404);
+
+        int status = TestContext.response.getStatusCode();
+
+        // This endpoint is reliable → should return 404
+        Assert.assertEquals(status, 404, "Expected 404 for non-existent user");
     }
 
     @Then("error message should contain {string}")
     public void errorMessage(String msg) {
-        Assert.assertTrue(TestContext.response.asString().contains(msg));
+
+        String response = TestContext.response.asString();
+
+        Assert.assertTrue(
+                response.contains(msg),
+                "Expected error message not found"
+        );
     }
 
     // =========================
@@ -76,19 +90,23 @@ public class UserSteps {
         TestContext.response = client.loginUser(finalUsername, password);
     }
 
-    // ✅ FIXED: Handle inconsistent API behavior
     @Then("login should fail logically")
     public void loginFailLogical() {
 
+        int status = TestContext.response.getStatusCode();
         String response = TestContext.response.asString().toLowerCase();
 
-        // API is unreliable → so we check minimal safe condition
-        Assert.assertNotNull(response, "Login response is null");
+        // Swagger returns 200 even for invalid login
+        Assert.assertEquals(status, 200, "Unexpected status code");
 
-        // Ensure response exists but DO NOT trust session logic
-        Assert.assertTrue(
-                response.length() > 0,
-                "Empty response received"
+        // Ensure response exists
+        Assert.assertNotNull(response, "Login response is null");
+        Assert.assertFalse(response.isEmpty(), "Empty response received");
+
+        // Logical validation → should not indicate real success
+        Assert.assertFalse(
+                response.contains("success"),
+                "Login incorrectly marked as successful"
         );
     }
 }
