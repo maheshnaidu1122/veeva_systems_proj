@@ -12,6 +12,7 @@ Feature: Pet CRUD
     Then pet name should match stored name
     And pet status should be "available"
 
+
   Scenario: Update Pet
     Given I create a pet with name "pet_<timestamp>" and status "available"
     And I store pet id from response

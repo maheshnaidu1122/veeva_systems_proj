@@ -17,6 +17,8 @@ public class CrossEndPointSteps {
         List<Map<String, Object>> pets =
                 TestContext.response.jsonPath().getList("$");
 
+        System.out.println("Searching for Pet ID: " + TestContext.petId);
+
         for (Map<String, Object> pet : pets) {
 
             Object idObj = pet.get("id");
@@ -33,9 +35,8 @@ public class CrossEndPointSteps {
 
         if (!found) {
 
-            System.out.println("Retrying fetch...");
+            System.out.println("Retrying fetch (API delay)...");
 
-            // retry 3 times
             for (int i = 0; i < 3; i++) {
 
                 Thread.sleep(1000);
@@ -57,11 +58,8 @@ public class CrossEndPointSteps {
             }
         }
 
-        if (!found) {
-            System.out.println("WARNING: Pet not found after retries, skipping assertion");
-            return;
-        }
+        System.out.println(found ? "Pet found in sold list ✅" : "Pet NOT found ❌");
 
-        Assert.assertTrue(found);
+        Assert.assertTrue(found, "Pet not found in sold list");
     }
 }

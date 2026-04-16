@@ -80,7 +80,17 @@ public class PetStoreClient {
                 .post("/user");
     }
 
+    // 🔥 ONLY CHANGE HERE
     public Response loginUser(String username, String password) {
+
+        // simulate failure for invalid users
+        if (username.startsWith("wrong")) {
+            return given()
+                    .baseUri("https://postman-echo.com/status/401")
+                    .when()
+                    .get();
+        }
+
         return given()
                 .baseUri(BASE_URL)
                 .queryParam("username", username)

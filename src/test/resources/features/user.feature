@@ -1,5 +1,6 @@
 Feature: User Security
 
+
   Scenario: Invalid user creation (logical validation)
     When I create user with email "invalid_email"
     Then response should contain created username

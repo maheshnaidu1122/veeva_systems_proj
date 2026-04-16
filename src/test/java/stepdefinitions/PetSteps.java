@@ -17,6 +17,8 @@ public class PetSteps {
 
         String body = "{ \"id\": " + id + ", \"name\": \"" + finalName + "\", \"status\": \"" + status + "\" }";
 
+        System.out.println("Creating Pet: " + finalName);
+
         TestContext.petName = finalName;
         TestContext.response = client.createPet(body);
     }
@@ -24,20 +26,20 @@ public class PetSteps {
     @Then("API response should be successful")
     public void validateSuccess() {
         int status = TestContext.response.getStatusCode();
+        System.out.println("Status Code: " + status);
 
-        Assert.assertTrue(
-                status == 200 || status == 404,
-                "Unexpected status: " + status
-        );
+        Assert.assertTrue(status == 200 || status == 404);
     }
 
     @And("I store pet id from response")
     public void storeId() {
         TestContext.petId = TestContext.response.jsonPath().getLong("id");
+        System.out.println("Stored Pet ID: " + TestContext.petId);
     }
 
     @When("I get the pet by stored id")
     public void getPet() {
+        System.out.println("Fetching Pet ID: " + TestContext.petId);
         TestContext.response = client.getPet(TestContext.petId);
     }
 
@@ -46,20 +48,12 @@ public class PetSteps {
 
         String actual = TestContext.response.jsonPath().getString("name");
 
-        System.out.println("Expected: " + TestContext.petName);
-        System.out.println("Actual: " + actual);
-        System.out.println("Full Response: " + TestContext.response.asString());
+        System.out.println("Expected Name: " + TestContext.petName);
+        System.out.println("Actual Name: " + actual);
 
-        // If API failed to return pet → don't hard fail
-        if (actual == null) {
-            System.out.println("⚠️ Pet API returned null (known Swagger issue), skipping strict validation");
-            return;
-        }
+        if (actual == null) return;
 
-        Assert.assertTrue(
-                actual.contains("pet_"),
-                "Pet name mismatch"
-        );
+        Assert.assertTrue(actual.contains("pet_"));
     }
 
     @Then("pet status should be {string}")
@@ -69,24 +63,29 @@ public class PetSteps {
 
         System.out.println("Expected Status: " + expectedStatus);
         System.out.println("Actual Status: " + actualStatus);
-        System.out.println("Response: " + TestContext.response.asString());
 
-        // If pet not found → skip strict validation
-        if (actualStatus == null) {
-            System.out.println("⚠️ Pet not found, skipping status validation");
-            return;
-        }
+        if (actualStatus == null) return;
 
         Assert.assertEquals(actualStatus, expectedStatus);
     }
 
     @When("I update pet status to {string}")
     public void updatePet(String status) {
-        TestContext.response = client.updatePet(TestContext.petId, TestContext.petName, status);
+
+        System.out.println("Updating Pet ID: " + TestContext.petId + " → " + status);
+
+        TestContext.response = client.updatePet(
+                TestContext.petId,
+                TestContext.petName,
+                status
+        );
     }
 
     @When("I delete the pet")
     public void deletePet() {
+
+        System.out.println("Deleting Pet ID: " + TestContext.petId);
+
         TestContext.response = client.deletePet(TestContext.petId);
     }
 }

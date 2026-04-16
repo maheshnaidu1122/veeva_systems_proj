@@ -2,6 +2,7 @@ Feature: Inventory Analysis
 
   Scenario: Compare inventory and API list
 
+
     Given I fetch inventory
     Then inventory response should be successful
 

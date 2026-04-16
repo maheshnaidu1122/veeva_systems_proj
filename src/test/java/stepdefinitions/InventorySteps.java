@@ -26,12 +26,20 @@ public class InventorySteps {
 
     @Then("I extract available count")
     public void extractAvailable() {
-        Map<String, Integer> map = TestContext.response.jsonPath().getMap("$");
+
+        Map<String, Integer> map =
+                TestContext.response.jsonPath().getMap("$");
+
         availableCount = map.getOrDefault("available", 0);
+
+        System.out.println("Inventory Available Count: " + availableCount);
     }
 
     @When("I fetch pets with status {string}")
     public void fetchPets(String status) {
+
+        System.out.println("Fetching pets with status: " + status);
+
         TestContext.response = client.findPetsByStatus(status);
     }
 
@@ -42,17 +50,24 @@ public class InventorySteps {
 
     @Then("I count pets in list")
     public void countPets() {
+
         listCount = TestContext.response.jsonPath().getList("$").size();
+
+        System.out.println("List Count: " + listCount);
     }
 
     @Then("both counts should match")
     public void validateCounts() {
 
-        int diff = Math.abs(listCount - availableCount);
+        System.out.println("Inventory: " + availableCount);
+        System.out.println("List: " + listCount);
 
-        Assert.assertTrue(
-                diff <= 50,
-                "Counts differ too much. Inventory: " + availableCount + " List: " + listCount
+        Assert.assertEquals(
+                listCount,
+                availableCount,
+                "Count mismatch between inventory and list"
         );
+
+        System.out.println("Counts Match ✅");
     }
 }
