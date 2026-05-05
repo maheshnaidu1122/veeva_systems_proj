@@ -31,7 +31,7 @@ public class PetSteps {
         int status = TestContext.response.getStatusCode();
         log.info("Status Code: " + status);
 
-        Assert.assertTrue(status == 200 || status == 404);
+        Assert.assertTrue(status == 200);
     }
 
     @And("I store pet id from response")
