@@ -56,7 +56,7 @@ public class PetSteps {
 
         if (actual == null) return;
 
-        Assert.assertTrue(actual.contains("pet_"));
+        Assert.assertEquals(actual, TestContext.petName);
     }
 
     @Then("pet status should be {string}")
