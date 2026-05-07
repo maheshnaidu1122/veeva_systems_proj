@@ -91,4 +91,16 @@ public class PetSteps {
 
         TestContext.response = client.deletePet(TestContext.petId);
     }
+    @Then("API response status should be {int}")
+    public void api_response_status_should_be(Integer statusCode) {
+
+        int actualStatusCode = TestContext.response.getStatusCode();
+
+        log.info("Expected Status Code: " + statusCode);
+        log.info("Actual Status Code: " + actualStatusCode);
+
+        Assert.assertEquals(actualStatusCode, statusCode.intValue());
+
+        log.info("Status code validation successful");
+    }
 }
