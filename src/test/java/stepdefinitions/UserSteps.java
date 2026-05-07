@@ -36,7 +36,7 @@ public class UserSteps {
         Assert.assertEquals(status, 200);
     }
 
-    @Then("response should not validate email format")
+    @Then("response should validate email format")
     public void validateEmailNotChecked() {
 
         log.info("Validating email format behavior");
