@@ -12,7 +12,6 @@ Feature: Pet CRUD
     Then pet name should match stored name
     And pet status should be "available"
 
-
   Scenario: Update Pet
     Given I create a pet with name "pet_<timestamp>" and status "available"
     And I store pet id from response
@@ -24,3 +23,5 @@ Feature: Pet CRUD
     And I store pet id from response
     When I delete the pet
     Then API response should be successful
+    When I get the pet by stored id
+    Then API response status should be 404
